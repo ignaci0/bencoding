@@ -1,13 +1,12 @@
 package bencoding
 
 import (
-	"log"
 	"testing"
 )
 
 func TestWriteEncoded(test *testing.T) {
 	var b Buffer
-	b.WriteEncoded("i3e")
+	b.Write([]byte("i3e"))
 
 	str := b.String()
 	if str != "i3e" {
@@ -18,14 +17,14 @@ func TestWriteEncoded(test *testing.T) {
 func TestReadInteger(test *testing.T) {
 
 	var b Buffer
-	b.WriteEncoded("i3e")
+	b.Write([]byte("i3e"))
 
-	got, _ := b.Read()
+	got, _ := b.Decode()
 	if got != int64(3) {
 		test.Errorf("Expected 3, got %d", got)
 	}
 
-	got, err := b.Read()
+	got, err := b.Decode()
 	if got != nil || err != nil {
 		test.Errorf("Expected nil, got %v", got)
 	}
@@ -34,9 +33,9 @@ func TestReadInteger(test *testing.T) {
 func TestReadString(test *testing.T) {
 
 	var b Buffer
-	b.WriteEncoded("3:cow")
+	b.Write([]byte("3:cow"))
 
-	got, _ := b.Read()
+	got, _ := b.Decode()
 	if got != "cow" {
 		test.Errorf("Expected 'cow', got %s", got)
 	}
@@ -45,9 +44,9 @@ func TestReadString(test *testing.T) {
 func TestReadList(test *testing.T) {
 	var b Buffer
 	expected := []string{"cow", "01234567891"}
-	b.WriteEncoded("l3:cow11:01234567891e")
+	b.Write([]byte("l3:cow11:01234567891e"))
 
-	got, err := b.Read()
+	got, err := b.Decode()
 	if err != nil {
 		test.Errorf(err.Error())
 	}
@@ -68,8 +67,8 @@ func TestReadList(test *testing.T) {
 
 func TestReadMap(test *testing.T) {
 	var b Buffer
-	b.WriteEncoded("d3:cow3:doge")
-	got, err := b.Read()
+	b.Write([]byte("d3:cow3:doge"))
+	got, err := b.Decode()
 	if err != nil {
 		test.Errorf("Got error %+v", err)
 	}
@@ -83,7 +82,7 @@ func TestReadMap(test *testing.T) {
 func TestWriteInteger(test *testing.T) {
 	var b Buffer
 
-	b.Write(3)
+	b.Encode(3)
 	got := b.String()
 	if got != "i3e" {
 		test.Errorf("Expected i3e; Got %+v", got)
@@ -93,7 +92,7 @@ func TestWriteInteger(test *testing.T) {
 func TestWriteString(test *testing.T) {
 	var b Buffer
 
-	b.Write("hello")
+	b.Encode("hello")
 	got := b.String()
 	if got != "5:hello" {
 		test.Errorf("Expected 5:hello; Got %+v", got)
@@ -113,14 +112,12 @@ func TestMapComplex(test *testing.T) {
 		"downloaded": 4,
 		"incomplete": 3,
 	}
-	log.Println("Encoding", r)
 	var buffer Buffer
-	buffer.Write(r)
+	buffer.Encode(r)
 	expected := "d5:filesd11:info_hash_1d8:completei3e10:downloadedi4e10:incompletei3ee11:info_hash_2d8:completei0e10:downloadedi1e10:incompletei2eeee"
 	got := buffer.String()
 
 	if expected != got {
 		test.Errorf("Expected %v. Got: %v", expected, got)
 	}
-
 }
