@@ -42,7 +42,7 @@ var (
 	ErrorInvalidType     error = errors.New("Unhandled type")
 	ErrorInvalidData     error = errors.New("Invalid data in buffer")
 	ErrorInvalidList     error = errors.New("Invalid list received")
-	ErrorTruncatedString error = errors.New("String is not long enough")
+	ErrorTruncatedString error = errors.New("String is not long enough: %w")
 )
 
 /*
@@ -161,7 +161,7 @@ Loop:
 
 		for char, err := b.ReadByte(); char != 'e'; {
 			if err != nil {
-				return nil, ErrorInvalidData
+				return nil, fmt.Errorf("Couldn't read buffer: %w", err)
 			}
 
 			b.UnreadByte()
@@ -200,9 +200,9 @@ Loop:
 		fmt.Sscanf(i, "%d", &len)
 
 		var str = make([]byte, len)
-		n, _ := b.Read(str) //When I get go 1.13 I might wrap the error
+		n, err := b.Read(str)
 		if n < len {
-			return nil, ErrorTruncatedString
+			return nil, fmt.Errorf(ErrorTruncatedString.Error(), err)
 		}
 
 		return string(str), nil

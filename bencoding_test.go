@@ -65,6 +65,39 @@ func TestReadList(test *testing.T) {
 	}
 }
 
+func TestWriteList(test *testing.T) {
+	var b Buffer
+	var expected string = "li3e3:cowe"
+	var list []interface{} = []interface{}{3, "cow"}
+
+	b.Encode(list)
+	var got string = b.String()
+	if got != expected {
+		test.Errorf("Expected %s, got %s", expected, got)
+	}
+
+}
+
+func TestInvalidMap(test *testing.T) {
+	var b Buffer
+
+	err := b.Encode(map[int]string{1: "some value"})
+	if err != ErrorInvalidMap {
+		test.Errorf("Expected %w, got %w", ErrorInvalidMap, err)
+	}
+}
+
+func TestInvalidType(test *testing.T) {
+	var b Buffer
+	type st struct {
+		attribute string
+	}
+	err := b.Encode(st{"hello"})
+	if err != ErrorInvalidType {
+		test.Errorf("Expected %v, got %v", ErrorInvalidType, err)
+	}
+}
+
 func TestReadMap(test *testing.T) {
 	var b Buffer
 	b.Write([]byte("d3:cow3:doge"))
@@ -99,6 +132,16 @@ func TestWriteString(test *testing.T) {
 	}
 }
 
+func TestWriteUInt16(test *testing.T) {
+	var b Buffer
+
+	b.Encode(uint16(1))
+	got := b.String()
+	expected := "i1e"
+	if got != expected {
+		test.Errorf("Expected %s; Got %+v", expected, got)
+	}
+}
 func TestMapComplex(test *testing.T) {
 	r := make(map[string]map[string]interface{})
 	r["files"] = make(map[string]interface{})
