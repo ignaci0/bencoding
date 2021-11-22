@@ -83,7 +83,7 @@ func TestInvalidMap(test *testing.T) {
 
 	err := b.Encode(map[int]string{1: "some value"})
 	if err != ErrorInvalidMap {
-		test.Errorf("Expected %w, got %w", ErrorInvalidMap, err)
+		test.Errorf("Expected %v, got %v", ErrorInvalidMap, err)
 	}
 }
 
